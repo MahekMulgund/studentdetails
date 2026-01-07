@@ -1,41 +1,70 @@
-import unittest
-import subprocess
+
 import sys
+import pytest
+from  studentdetails import calculate_grade, main
 
-class TestStudentGrade(unittest.TestCase):
 
-    def run_program(self, args):
-        result = subprocess.run(
-            [sys.executable, "studentdetails.py"] + args,
-            capture_output=True,
-            text=True
-        )
-        return result.stdout
+# 🔹 Grade S (90–100)
+@pytest.mark.parametrize("marks", [90, 95, 100])
+def test_grade_S(marks):
+    assert calculate_grade(marks) == "S"
 
-    def test_grade_S(self):
-        output = self.run_program(["Mahek", "BCA", "3", "95", "92", "90"])
-        self.assertIn("Grade", output)
-        self.assertIn("S", output)
 
-    def test_grade_A(self):
-        output = self.run_program(["Mahek", "BCA", "3", "85", "82", "80"])
-        self.assertIn("A", output)
+# 🔹 Grade A (80–89)
+@pytest.mark.parametrize("marks", [80, 85, 89])
+def test_grade_A(marks):
+    assert calculate_grade(marks) == "A"
 
-    def test_grade_B(self):
-        output = self.run_program(["Mahek", "BCA", "3", "70", "68", "66"])
-        self.assertIn("B", output)
 
-    def test_grade_C(self):
-        output = self.run_program(["Mahek", "BCA", "3", "55", "52", "50"])
-        self.assertIn("C", output)
+# 🔹 Grade B (65–79)
+@pytest.mark.parametrize("marks", [65, 72, 79])
+def test_grade_B(marks):
+    assert calculate_grade(marks) == "B"
 
-    def test_grade_D(self):
-        output = self.run_program(["Mahek", "BCA", "3", "42", "40", "41"])
-        self.assertIn("D", output)
 
-    def test_grade_F(self):
-        output = self.run_program(["Mahek", "BCA", "3", "30", "35", "38"])
-        self.assertIn("F", output)
+# 🔹 Grade C (50–64)
+@pytest.mark.parametrize("marks", [50, 57, 64])
+def test_grade_C(marks):
+    assert calculate_grade(marks) == "C"
 
-if __name__ == "__main__":
-    unittest.main()
+
+# 🔹 Grade D (40–49)
+@pytest.mark.parametrize("marks", [40, 45, 49])
+def test_grade_D(marks):
+    assert calculate_grade(marks) == "D"
+
+
+# 🔹 Grade F (Below 40)
+@pytest.mark.parametrize("marks", [0, 25, 39])
+def test_grade_F(marks):
+    assert calculate_grade(marks) == "F"
+
+
+# 🔹 Test main() using sys.argv (same as your first code)
+def test_main_output(monkeypatch, capsys):
+    test_args = [
+        "Studentdetails.py",
+        "mahek",
+        "Integrated MCA",
+        "3",
+        "85",
+        "78",
+        "90"
+    ]
+
+    # Mock command-line arguments
+    monkeypatch.setattr(sys, "argv", test_args)
+
+    # Run main
+    main()
+
+    # Capture output
+    output = capsys.readouterr().out
+
+    assert "GRADING CRITERIA" in output
+    assert "STUDENT DETAILS" in output
+    assert "Name       : mahek" in output
+    assert "Department : Integrated MCA" in output
+    assert "Semester   : 3" in output
+    assert "Average    : 84.33" in output
+    assert "Grade      : A" in output
